@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up - Healthcare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #e0f7fa, #b2ebf2, #a7ffeb, #80deea);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      position: relative;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .emoji, .bubble {
+      position: absolute;
+      font-size: 50px;
+      opacity: 0.08;
+      animation: drift 20s infinite;
+    }
+
+    .bubble {
+      font-size: 70px;
+      opacity: 0.05;
+    }
+
+    @keyframes drift {
+      0% { transform: translate(0,0) rotate(0deg); }
+      25% { transform: translate(15px,-10px) rotate(90deg); }
+      50% { transform: translate(-10px,15px) rotate(180deg); }
+      75% { transform: translate(10px,-5px) rotate(270deg); }
+      100% { transform: translate(0,0) rotate(360deg); }
+    }
+
+    .box {
+      background: linear-gradient(145deg, #ffffff, #e0f7fa);
+      padding: 45px 35px;
+      border-radius: 25px;
+      width: 360px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      animation: floatCard 6s ease-in-out infinite, glowCard 3s ease-in-out infinite;
+    }
+
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes glowCard {
+      0%,100% { box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+      50% { box-shadow: 0 25px 60px rgba(38,166,154,0.3); }
+    }
+
+    .box img {
+      width: 80px;
+      margin-bottom: 20px;
+      transition: transform 0.5s ease;
+    }
+
+    .box img:hover {
+      transform: rotate(20deg) scale(1.1);
+    }
+
+    h2 {
+      color: #00796b;
+      margin-bottom: 25px;
+      font-weight: 700;
+      font-size: 30px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border: 1px solid #26a69a;
+      outline: none;
+      box-shadow: 0 0 12px rgba(38,166,154,0.4);
+      background: #e0f7fa;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 15px 0;
+      font-size: 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(90deg, #26a69a, #00796b, #26a69a);
+      background-size: 200% 200%;
+      color: white;
+      font-weight: bold;
+      transition: all 0.4s ease;
+      animation: gradientButton 5s ease infinite;
+    }
+
+    @keyframes gradientButton {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    p a {
+      color: #00796b;
+      text-decoration: none;
+      font-weight: 500;
+    }
+  </style>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCtjfuunPvAKEc-9iBl2VI1D89X4NrhXgE",
+      authDomain: "medireach-700fc.firebaseapp.com",
+      databaseURL: "https://medireach-700fc-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "medireach-700fc",
+      storageBucket: "medireach-700fc.firebasestorage.app",
+      messagingSenderId: "946051383153",
+      appId: "1:946051383153:web:cf8c290bd8eb5e92e980d0",
+      measurementId: "G-S9CKBQHT84"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function signup(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (name.length < 3) {
+        alert("Full Name must be at least 3 characters.");
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
+      if (password.length < 6) {
+        alert("Password must be at least 6 characters.");
+        return;
+      }
+
+      const btn = document.getElementById("signupBtn");
+      btn.disabled = true;
+      btn.innerText = "Creating account...";
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          return database.ref("users/" + user.uid).set({
+            name: name,
+            email: email,
+            signupTime: new Date().toISOString()
+          }).then(() => auth.signOut());
+        })
+        .then(() => {
+          alert("Signup successful! Please log in.");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          console.error("Firebase signup error:", error.code, error.message);
+
+          const message = error.code === "PERMISSION_DENIED"
+            ? "Your account may have been created, but Firebase could not save your profile. Check Realtime Database rules."
+            : error.message;
+
+          alert("Signup failed: " + message);
+          btn.disabled = false;
+          btn.innerText = "Sign Up";
+        });
+    }
+  </script>
+</head>
+
+<body>
+  <div class="emoji" style="top:10%; left:5%;">🏥</div>
+  <div class="emoji" style="top:25%; left:25%;">⚕️</div>
+  <div class="emoji" style="top:40%; left:50%;">💊</div>
+  <div class="emoji" style="top:55%; left:70%;">🩺</div>
+  <div class="emoji" style="top:20%; left:85%;">🏥</div>
+
+  <div class="bubble" style="top:15%; left:15%;">💉</div>
+  <div class="bubble" style="top:60%; left:40%;">🩹</div>
+  <div class="bubble" style="top:30%; left:70%;">🧴</div>
+
+  <div class="box">
+    <img src="https://cdn-icons-png.flaticon.com/512/2807/2807173.png" alt="Healthcare Icon">
+
+    <h2>🏥 Sign Up 🩺</h2>
+
+    <form onsubmit="signup(event)">
+      <input type="text" id="name" placeholder="Full Name" autocomplete="name" required>
+      <input type="email" id="email" placeholder="Email" autocomplete="email" required>
+      <input type="password" id="password" placeholder="Password (min 6 chars)" autocomplete="new-password" required>
+      <button type="submit" id="signupBtn">Sign Up</button>
+    </form>
+
+    <p>Already have an account? <a href="login.html">Login</a></p>
+  </div>
+</body>
+</html>

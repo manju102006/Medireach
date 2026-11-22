@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile</title>
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; transition:0.3s; }
+body {
+  font-family:'Poppins', sans-serif;
+  background: linear-gradient(-45deg,#e0eafc,#cfdef3,#d9f3f7,#a0c4ff);
+  background-size: 400% 400%;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#333;
+  animation: gradientBG 15s ease infinite;
+}
+@keyframes gradientBG {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Container */
+.container {
+  width:100%;
+  max-width:720px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(25px);
+  border-radius:35px;
+  padding:50px 40px 40px;
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  text-align:center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.container:hover {
+  transform: translateY(-8px);
+  box-shadow:0 40px 80px rgba(0,0,0,0.3);
+}
+
+/* Header */
+.header h1 {
+  font-size:40px;
+  font-weight:700;
+  color:#1a1a1a;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+}
+.header p {
+  font-size:16px;
+  color:#555;
+  margin-bottom:35px;
+}
+
+/* Avatar */
+.avatar-wrapper {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto 35px;
+  border-radius: 50%;
+  background: linear-gradient(45deg,#42a5f5,#00c896,#fbc02d,#ff6f61);
+  background-size: 400% 400%;
+  animation: avatarGradient 10s linear infinite;
+  padding: 5px;
+  transition: transform 0.4s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+@keyframes avatarGradient {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+#defaultAvatar {
+  width: 100%;
+  height: 100%;
+  font-size: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #cccccc;
+  user-select: none;
+  transition: transform 0.4s;
+  border: 5px solid white;
+}
+
+.avatar-wrapper:hover { transform: scale(1.05); }
+
+.avatar-wrapper img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  border:5px solid #fff;
+  transition: transform 0.4s, box-shadow 0.4s;
+}
+.avatar-wrapper:hover img {
+  transform: scale(1.12);
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Small gradient camera button always visible */
+.camera-button {
+  position: absolute;
+  bottom:0;
+  right:0;
+  width:45px;
+  height:45px;
+  border-radius:50%;
+  border:3px solid white;
+  background: linear-gradient(135deg, #42a5f5, #00c896, #fbc02d, #ff6f61);
+  background-size: 400% 400%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  font-size:18px;
+  color:white;
+  overflow:hidden;
+  animation: gradientBG 10s linear infinite;
+  transition: transform 0.3s, background 0.5s;
+  z-index:10;
+}
+
+/* Camera icon in small circle */
+.camera-button i {
+  color: #fff;
+  font-size: 16px;
+}
+.camera-button:hover {
+  transform: scale(1.2);
+}
+
+/* Hidden file input */
+#avatarUpload {
+  display: none;
+}
+
+/* Floating Labels */
+.profile-group {
+  position:relative;
+  margin-bottom:22px;
+}
+.profile-group input, .profile-group textarea {
+  width:100%;
+  padding:18px 14px 18px 50px;
+  border-radius:12px;
+  border:none;
+  background: rgba(0,0,0,0.05);
+  color:#333;
+  font-size:15px;
+  outline:none;
+}
+.profile-group textarea { height:85px; resize:none; }
+.profile-group i {
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#555;
+  transition:0.3s;
+}
+.profile-group input:focus, .profile-group textarea:focus {
+  background: rgba(0,0,0,0.1);
+  box-shadow:0 0 15px rgba(0,0,0,0.25);
+}
+
+/* Social Links */
+.social-links { margin:28px 0; display:flex; justify-content:center; gap:18px; }
+.social-links a {
+  color:#555;
+  font-size:24px;
+  transition: transform 0.3s, color 0.3s;
+}
+.social-links a:hover { color:#42a5f5; transform: scale(1.25) rotate(-10deg); }
+
+/* Skills */
+.skills { display:flex; justify-content:center; flex-wrap: wrap; gap:16px; margin-bottom:32px; }
+.skills span {
+  background: #f0f0f0;
+  color:#333;
+  padding:8px 18px;
+  border-radius:35px;
+  font-size:13px;
+  transition: transform 0.3s, background 0.3s;
+  cursor:pointer;
+}
+.skills span:hover {
+  transform: scale(1.2) rotate(-3deg);
+  background:#42a5f5; color:#fff;
+}
+
+/* Buttons */
+button {
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:35px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  margin-top:12px;
+  transition: all 0.3s ease;
+}
+.edit-btn { background: linear-gradient(135deg,#42a5f5,#1e88e5); color:#fff; }
+.edit-btn:hover { opacity:0.85; }
+.save-btn { background: linear-gradient(135deg,#00c896,#00b383); color:#fff; }
+.save-btn:hover { opacity:0.85; }
+.back-btn { background:#ccc; color:#333; }
+.back-btn:hover { background:#bbb; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom:30px; left:50%;
+  transform: translateX(-50%) translateY(50px);
+  background:#00c896;
+  color:#fff;
+  padding:14px 28px;
+  border-radius:30px;
+  font-size:14px;
+  opacity:0; pointer-events:none;
+  transition:0.5s;
+}
+.toast.show {
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Dark Mode */
+.dark-mode {
+  background:#121212 !important;
+  color:#fff;
+}
+.dark-mode .container {
+  background: rgba(0,0,0,0.85);
+  color:#fff;
+}
+.dark-mode .profile-group input,
+.dark-mode .profile-group textarea {
+  background: rgba(255,255,255,0.05);
+  color:#fff;
+}
+.dark-mode .skills span { background: rgba(255,255,255,0.15); color:#fff; }
+.dark-mode .social-links a { color:#fff; }
+.toast.error { background:#e53935; }
+@media (max-width:480px){ .container{ padding:30px 18px; border-radius:24px; } .header h1{ font-size:28px; } }
+</style>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyC-EE-5SDQuJU8HUCrLq4Dn9DwxFA_JQrM",
+  authDomain: "healthcare-routing-1a4b3.firebaseapp.com",
+  databaseURL: "https://healthcare-routing-1a4b3-default-rtdb.firebaseio.com",
+  projectId: "healthcare-routing-1a4b3",
+  storageBucket: "healthcare-routing-1a4b3.appspot.com",
+  messagingSenderId: "449191959751",
+  appId: "1:449191959751:web:6f84055b2d86647735f2e2"
+});
+</script>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="fa-solid fa-user"></i> My Profile</h1>
+    <p>Manage your account details</p>
+  </div>
+
+  <!-- Avatar Section -->
+  <div class="avatar-wrapper" id="avatarWrapper">
+    <div id="defaultAvatar">👤</div>
+    <img id="profilePic" style="display:none;" alt="Profile Picture">
+    <div class="camera-button" id="cameraBtn" title="Change Profile Picture">
+      <i class="fa-solid fa-camera"></i>
+    </div>
+    <input type="file" accept="image/*" id="avatarUpload">
+  </div>
+
+  <!-- Profile Fields -->
+  <div class="profile-group"><i class="fa-solid fa-user"></i><input type="text" id="name" disabled placeholder="Full Name" /></div>
+  <div class="profile-group"><i class="fa-solid fa-envelope"></i><input type="email" id="email" disabled placeholder="Email" /></div>
+  <div class="profile-group"><i class="fa-solid fa-phone"></i><input type="tel" id="phone" disabled placeholder="Phone (10-digit mobile)" inputmode="numeric" maxlength="10" /></div>
+  <div class="profile-group"><i class="fa-solid fa-venus-mars"></i><input type="text" id="gender" disabled placeholder="Gender" /></div>
+  <div class="profile-group"><i class="fa-solid fa-calendar-days"></i><input type="date" id="dob" disabled /></div>
+  <div class="profile-group"><i class="fa-solid fa-location-dot"></i><input type="text" id="address" disabled placeholder="Address" /></div>
+  <div class="profile-group"><i class="fa-solid fa-align-left"></i><textarea id="bio" disabled placeholder="Short Bio"></textarea></div>
+  <!-- Buttons -->
+  <button class="edit-btn" id="editBtn"><i class="fa-solid fa-pen"></i> Edit Profile</button>
+  <button class="save-btn" id="saveBtn" style="display:none;"><i class="fa-solid fa-check"></i> Save Changes</button>
+  <button class="back-btn" onclick="window.location.href='dashboard.html'"><i class="fa-solid fa-arrow-left"></i> Back</button>
+  <button class="back-btn" id="darkModeBtn"><i class="fa-solid fa-moon"></i> Dark Mode</button>
+</div>
+
+<div class="toast" id="toast">✅ Profile updated successfully!</div>
+
+<script>
+const body = document.body;
+const nameField = document.getElementById("name");
+const emailField = document.getElementById("email");
+const phoneField = document.getElementById("phone");
+const genderField = document.getElementById("gender");
+const dobField = document.getElementById("dob");
+const addressField = document.getElementById("address");
+const bioField = document.getElementById("bio");
+const profilePic = document.getElementById("profilePic");
+const defaultAvatar = document.getElementById("defaultAvatar");
+const cameraBtn = document.getElementById("cameraBtn");
+const avatarUpload = document.getElementById("avatarUpload");
+
+const uid = localStorage.getItem("uid");
+if (!uid) { window.location.replace("login.html"); }
+const allFields = [nameField,emailField,phoneField,genderField,dobField,addressField,bioField];
+const editable = [nameField,phoneField,genderField,dobField,addressField,bioField]; // email belongs to the login account
+dobField.max = new Date().toISOString().slice(0,10);
+
+// Load saved data (the old code filled empty fields with their placeholder text as if it were real data)
+allFields.forEach(f=>{ f.value = localStorage.getItem(f.id) || ""; });
+if (uid) {
+  firebase.database().ref("users/" + uid).once("value").then(snap => {
+    const d = snap.val() || {};
+    allFields.forEach(f => { if (d[f.id]) { f.value = d[f.id]; localStorage.setItem(f.id, d[f.id]); } });
+  }).catch(e => console.warn("Could not load profile:", e.message));
+}
+
+function showToast(msg, isError){
+  toast.textContent = msg;
+  toast.classList.toggle("error", !!isError);
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 2500);
+}
+
+// Load saved profile picture
+const savedPic = localStorage.getItem("profilePic");
+if(savedPic){
+  profilePic.src = savedPic;
+  profilePic.style.display = "block";
+  defaultAvatar.style.display = "none";
+}
+
+// Camera button click handler
+cameraBtn.addEventListener("click", () => {
+  avatarUpload.click();
+});
+
+// Avatar upload
+avatarUpload.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if(file){
+    if (file.size > 1024*1024) { showToast("Please choose an image under 1 MB.", true); avatarUpload.value=""; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      profilePic.src = reader.result;
+      profilePic.style.display = "block";
+      defaultAvatar.style.display = "none";
+      try { localStorage.setItem("profilePic", reader.result); }
+      catch(err){ showToast("Picture is too large to save. Choose a smaller image.", true); }
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Edit/Save
+const editBtn = document.getElementById("editBtn");
+const saveBtn = document.getElementById("saveBtn");
+const toast = document.getElementById("toast");
+editBtn.addEventListener("click", ()=>{
+  editable.forEach(f=>f.disabled=false);
+  editBtn.style.display="none";
+  saveBtn.style.display="block";
+});
+saveBtn.addEventListener("click", ()=>{
+  const name = nameField.value.trim(), phone = phoneField.value.trim();
+  if (name.length < 3) { showToast("Name must be at least 3 characters.", true); return; }
+  if (phone && !/^[6-9]\d{9}$/.test(phone)) { showToast("Enter a valid 10-digit Indian mobile number.", true); return; }
+  const data = {};
+  editable.forEach(f=>{ data[f.id] = f.value.trim(); localStorage.setItem(f.id, data[f.id]); f.disabled=true; });
+  localStorage.setItem("username", name);
+  saveBtn.style.display="none";
+  editBtn.style.display="block";
+  if (uid) {
+    firebase.database().ref("users/" + uid).update(data)
+      .then(()=>showToast("✅ Profile updated successfully!"))
+      .catch(e=>showToast("Saved on this device, but cloud save failed: " + e.message, true));
+  } else showToast("✅ Profile saved on this device.");
+});
+
+// Dark mode toggle
+const darkModeBtn = document.getElementById("darkModeBtn");
+darkModeBtn.addEventListener("click", ()=>{
+  body.classList.toggle("dark-mode");
+  const icon = darkModeBtn.querySelector("i");
+  if(body.classList.contains("dark-mode")){
+    icon.classList.replace("fa-moon","fa-sun");
+  } else {
+    icon.classList.replace("fa-sun","fa-moon");
+  }
+});
+</script>
+</body>
+</html>

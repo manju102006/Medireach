@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Page</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #a18cd1, #fbc2eb, #fad0c4, #ff9a9e);
+      background-size: 400% 400%;
+      animation: gradientShift 12s ease infinite;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.25);
+      padding: 36px 28px;
+      border-radius: 22px;
+      box-shadow: 0 12px 45px rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp 1s ease forwards;
+      border: 1px solid rgba(255,255,255,0.4);
+      position: relative;
+    }
+
+    h2 {
+      text-align: center;
+      color: #3b0764;
+      margin-bottom: 26px;
+      font-size: 30px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .progress-fill {
+      width: 70%;
+      height: 100%;
+      background: linear-gradient(90deg, #9333ea, #d946ef);
+      animation: progressAnim 2s ease forwards;
+    }
+
+    /* Summary */
+    .summary {
+      background: rgba(255, 255, 255, 0.55);
+      padding: 22px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      font-size: 16px;
+      border-left: 6px solid #9333ea;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .summary p {
+      margin: 12px 0;
+      color: #1f2937;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .summary p span {
+      font-size: 18px;
+    }
+
+    /* Buttons */
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      font-size: 17px;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      letter-spacing: 0.6px;
+    }
+
+    .pay-btn {
+      background: linear-gradient(135deg, #9333ea, #d946ef);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(147, 51, 234, 0.4);
+    }
+    .pay-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 24px rgba(147, 51, 234, 0.55);
+      filter: brightness(1.07);
+    }
+
+    .back-btn {
+      background: rgba(255,255,255,0.8);
+      color: #222;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    .back-btn:hover {
+      background: rgba(255,255,255,0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Animations */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes progressAnim {
+      from { width: 0%; }
+      to { width: 70%; }
+    }
+    .notice { background:#fff7ed; border-left:6px solid #f59e0b; color:#7c2d12; padding:12px 14px; border-radius:10px; font-size:14px; margin-bottom:14px; display:none; }
+    .notice.error { background:#fef2f2; border-color:#ef4444; color:#7f1d1d; }
+    .notice.ok { background:#f0fdf4; border-color:#22c55e; color:#14532d; }
+    button:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+  </style>
+
+  
+<!-- Razorpay Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCtjfuunPvAKEc-9iBl2VI1D89X4NrhXgE",
+    authDomain: "medireach-700fc.firebaseapp.com",
+    databaseURL: "https://medireach-700fc-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "medireach-700fc",
+    storageBucket: "medireach-700fc.firebasestorage.app",
+    messagingSenderId: "946051383153",
+    appId: "1:946051383153:web:cf8c290bd8eb5e92e980d0",
+    measurementId: "G-S9CKBQHT84"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const auth = firebase.auth();
+  const database = firebase.database();
+</script>
+
+</head>
+<body>
+
+  <div class="container">
+    <h2>💳 Secure Payment</h2>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+
+    <!-- Appointment Summary -->
+    <div class="notice" id="notice" role="status"></div>
+    <div class="summary" id="appointment-summary"></div>
+
+    <button class="pay-btn" id="payBtn" onclick="payNow()">✅ Pay with Razorpay</button>
+    <button class="back-btn" onclick="window.history.back()">⬅ Back</button>
+    <button class="back-btn" onclick="window.location.href='dashboard.html'">🏠 Dashboard</button>
+  </div>
+
+  <script>
+   
+// Razorpay configuration
+// Add your Razorpay TEST Key ID here when available.
+// Never put your Razorpay Key Secret in frontend code.
+const RAZORPAY_KEY_ID = "rzp_test_U3C8mh1VYPV1Kl";
+
+const AMOUNT_INR = 500;
+
+// Read appointment ID from URL
+const params = new URLSearchParams(window.location.search);
+const appointmentId = params.get("id");
+
+const notice = document.getElementById("notice");
+const summary = document.getElementById("appointment-summary");
+const payBtn = document.getElementById("payBtn");
+
+let currentUser = null;
+let appointmentData = null;
+
+// Display messages
+function showNotice(message, type = "") {
+  notice.textContent = message;
+  notice.className = "notice " + type;
+  notice.style.display = "block";
+}
+
+// Escape HTML
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
+// Show appointment details
+function displayAppointment(a) {
+  summary.innerHTML = `
+    <p><span>👤</span> <strong>Name:</strong> ${esc(a.name)}</p>
+    <p><span>🏥</span> <strong>Hospital:</strong> ${esc(a.hospital)}</p>
+    <p><span>🩺</span> <strong>Symptom:</strong> ${esc(a.symptom)}</p>
+    <p><span>📅</span> <strong>Date:</strong> ${esc(a.date)}</p>
+    <p><span>⏰</span> <strong>Time:</strong> ${esc(a.time)}</p>
+    <p><span>💰</span> <strong>Amount:</strong> ₹${AMOUNT_INR} (Consultation Fee)</p>
+    <p><span>📌</span> <strong>Payment Status:</strong> ${esc(a.paymentStatus || "pending")}</p>
+  `;
+}
+
+// Load appointment from Firebase
+
+async function loadAppointment(user) {
+  if (!appointmentId) {
+    showNotice("Appointment ID is missing. Please book an appointment first.", "error");
+    payBtn.disabled = true;
+    return;
+  }
+
+  try {
+    const appointmentRef = database.ref(
+      "appointments/" + user.uid + "/" + appointmentId
+    );
+
+    const snapshot = await appointmentRef.once("value");
+
+    if (!snapshot.exists()) {
+      showNotice("Appointment not found in your account.", "error");
+      payBtn.disabled = true;
+      return;
+    }
+
+    appointmentData = snapshot.val();
+
+    // Check UID only if it exists in the appointment record.
+    if (appointmentData.uid &&
+        appointmentData.uid !== user.uid) {
+      showNotice("Unauthorized appointment access.", "error");
+      payBtn.disabled = true;
+      appointmentData = null;
+      return;
+    }
+
+    displayAppointment(appointmentData);
+
+    if (appointmentData.paymentStatus === "paid") {
+      showNotice("This appointment has already been paid.", "ok");
+      payBtn.disabled = true;
+      return;
+    }
+
+    payBtn.disabled = false;
+
+  } catch (error) {
+    console.error("Appointment loading error:", error);
+    showNotice("Could not load appointment: " + error.message, "error");
+    payBtn.disabled = true;
+  }
+}
+
+
+// Check Firebase login
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    alert("Please login to continue.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentUser = user;
+  loadAppointment(user);
+});
+
+// Start Razorpay checkout
+async function payNow() {
+  const user = auth.currentUser;
+
+  if (!user || !appointmentData || !appointmentId) {
+    showNotice("Appointment details are not ready. Please refresh the page.", "error");
+    return;
+  }
+
+  if (!RAZORPAY_KEY_ID) {
+    showNotice("Please configure your Razorpay Key ID first.", "error");
+    return;
+  }
+
+  if (appointmentData.paymentStatus === "paid") {
+    showNotice("This appointment is already paid.", "ok");
+    return;
+  }
+
+  if (typeof Razorpay === "undefined") {
+    showNotice("Razorpay checkout could not load. Check your internet connection.", "error");
+    return;
+  }
+
+  payBtn.disabled = true;
+
+  try {
+    // This is a checkout demonstration only.
+    // For real payments, create the Razorpay order on your backend.
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: AMOUNT_INR * 100,
+      currency: "INR",
+      name: "MediReach Healthcare",
+      description: "Appointment at " + appointmentData.hospital,
+
+      // Use the retrieved Firebase appointment details
+      notes: {
+        appointmentId: appointmentId,
+        hospital: appointmentData.hospital,
+        date: appointmentData.date,
+        time: appointmentData.time
+      },
+
+      prefill: {
+        name: appointmentData.name || "",
+        email: user.email || "",
+        contact: appointmentData.phone || ""
+      },
+
+      theme: {
+        color: "#9333ea"
+      },
+
+      handler: function(response) {
+        // Do not mark the appointment as paid here.
+        // The payment must first be verified securely by your backend.
+        showNotice(
+          "Payment response received. Payment ID: " +
+          response.razorpay_payment_id +
+          ". Waiting for secure server verification.",
+          "ok"
+        );
+
+        payBtn.disabled = true;
+      },
+
+      modal: {
+        ondismiss: function() {
+          payBtn.disabled = false;
+          showNotice("Payment window closed. Payment status remains pending.");
+        }
+      }
+    };
+
+    const razorpay = new Razorpay(options);
+
+    razorpay.on("payment.failed", function(response) {
+      payBtn.disabled = false;
+
+      const message =
+        response.error && response.error.description
+          ? response.error.description
+          : "Unknown payment error";
+
+      showNotice("Payment failed: " + message, "error");
+    });
+
+    razorpay.open();
+
+  } catch (error) {
+    console.error("Payment error:", error);
+    payBtn.disabled = false;
+    showNotice("Unable to start payment: " + error.message, "error");
+  }
+}
+
+  </script>
+</body>
+</html>

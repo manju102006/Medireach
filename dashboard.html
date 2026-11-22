@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RURAL REACH - Dashboard</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Poppins',sans-serif;
+      background:radial-gradient(circle at top left,#c8f7c5,#a0eacb,#8ed1fc,#b3f0e7);
+      color:#023047;min-height:100vh;overflow-x:hidden;overflow-y:hidden;position:relative;
+      display:flex;
+    }
+    /* Floating Particles */
+    .particles span{
+      position:fixed;border-radius:50%;
+      background:rgba(0,150,200,0.2);
+      animation:gentleFloat 25s linear infinite;
+      filter:blur(2px);
+      box-shadow:0 0 10px rgba(0,150,200,0.3);
+      will-change:transform;
+    }
+    @keyframes gentleFloat{
+      from{transform:translateY(100vh) scale(0.8);}
+      to{transform:translateY(-10vh) scale(1);}
+    }
+    
+    /* Fixed Floating Emojis - Smoother animation */
+    .emoji {
+      position:fixed;
+      font-size:28px;
+      animation:smoothFloat 25s linear infinite;
+      opacity:0.6;
+      will-change:transform;
+    }
+    @keyframes smoothFloat {
+      from { transform:translateY(100vh) scale(0.8); opacity:0; }
+      20% { opacity:0.6; }
+      to { transform:translateY(-10vh) scale(1); opacity:0; }
+    }
+
+    /* Sidebar - Fixed positioning */
+    .sidebar{
+      width:260px;background:rgba(255,255,255,0.6);backdrop-filter:blur(15px);
+      padding:20px;display:flex;flex-direction:column;gap:20px;
+      position:fixed;top:0;bottom:0;left:0;
+      box-shadow:2px 0 25px rgba(0,150,200,0.25);
+      border-right:2px solid rgba(0,150,200,0.3);
+      animation:slideIn 1s ease;
+      transition:all 0.4s ease;
+      z-index:1000;
+    }
+    .sidebar h2{
+      color:#0284c7;text-align:center;margin-bottom:20px;
+      font-size:22px;letter-spacing:1px;
+      text-shadow:0 0 10px #00b4d8,0 0 25px #00b4d8;
+    }
+    .sidebar a{
+      display:flex;align-items:center;gap:12px;
+      padding:12px 15px;border-radius:12px;text-decoration:none;
+      color:#023047;transition:0.3s ease;font-weight:500;position:relative;overflow:hidden;
+    }
+    .sidebar a::after{
+      content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
+      background:linear-gradient(90deg,transparent,rgba(0,200,150,0.4),transparent);
+      transition:0.6s;
+    }
+    .sidebar a:hover::after{left:100%;}
+    .sidebar a:hover,.sidebar a.active{
+      background:linear-gradient(90deg,#8ef9a3,#56ccf2);
+      color:#023047;box-shadow:0 4px 15px rgba(0,200,150,0.6);
+      transform:translateX(5px) scale(1.02);
+    }
+
+    /* Toggle (Mobile) */
+    .toggle-btn{
+      position:absolute;top:20px;right:-45px;background:#56ccf2;
+      border-radius:50%;width:40px;height:40px;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;color:#023047;box-shadow:0 0 12px #56ccf2;
+    }
+    .collapsed{width:70px;}
+    .collapsed a span{display:none;}
+    .collapsed h2{display:none;}
+
+    /* Main - Stable positioning */
+    main{
+      margin-left:260px;padding:30px;flex:1;
+      animation:fadeIn 1.2s ease;transition:margin-left 0.4s ease;
+      position:relative;overflow-y:auto;height:100vh;
+    }
+    .collapsed ~ main{margin-left:70px;}
+
+    header{text-align:center;margin-bottom:25px;}
+    header h1{
+      font-size:36px;font-weight:700;letter-spacing:1px;
+      background:linear-gradient(270deg,#8ef9a3,#56ccf2,#00b4d8,#06d6a0,#8ef9a3);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-size:300% 300%;animation:gradientShift 8s infinite linear;
+      text-shadow:0 0 25px rgba(0,200,150,0.6);
+    }
+    @keyframes gradientShift{
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+    header p{color:#035e4b;font-size:17px;}
+
+    h2{text-align:center;color:#023047;margin-bottom:25px;}
+
+    /* Hero - Stable animation */
+    .hero{
+      display:flex;flex-direction:column;align-items:center;gap:18px;
+      margin:40px auto;text-align:center;position:relative;
+      padding:25px;border-radius:25px;
+      background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);
+      box-shadow:0 0 30px rgba(0,200,150,0.2), inset 0 0 25px rgba(0,200,150,0.2);
+      animation:zoomIn 1.5s ease;
+    }
+    .hero img{
+      width:130px;
+      animation:gentleFloat2 4s infinite ease-in-out;
+      filter:drop-shadow(0 0 15px #56ccf2);
+    }
+    .hero-text h2{
+      font-size:28px;
+      background:linear-gradient(90deg,#06d6a0,#00b4d8,#8ef9a3,#56ccf2);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      text-shadow:0 0 15px rgba(0,150,200,0.4);
+    }
+    @keyframes gentleFloat2{
+      0%,100%{transform:translateY(0);}
+      50%{transform:translateY(-8px);}
+    }
+    @keyframes zoomIn{from{transform:scale(0.95);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+    /* Tips - Stable text */
+    .tips{
+      margin:25px auto;text-align:center;font-size:18px;
+      color:#035e4b;font-style:italic;min-height:24px;
+    }
+    .fade{animation:fadeText 1s ease;}
+    @keyframes fadeText{from{opacity:0;}to{opacity:1;}}
+
+    /* Stats - Reduced hover effects */
+    .stats{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:22px;margin:30px 0;
+    }
+    .stat-card{
+      background:rgba(255,255,255,0.9);
+      backdrop-filter:blur(12px);
+      padding:24px;border-radius:22px;text-align:center;
+      box-shadow:0 8px 25px rgba(0,200,150,0.3);
+      transition:transform 0.3s ease,box-shadow 0.3s ease;
+      border:1px solid rgba(0,200,150,0.25);
+      position:relative;overflow:hidden;color:#023047;
+    }
+    .stat-card::after{
+      content:"";position:absolute;top:-50%;left:-50%;
+      width:200%;height:200%;background:conic-gradient(from 0deg,#06d6a0,#00b4d8,#8ef9a3,#56ccf2,#06d6a0);
+      animation:rotate 8s linear infinite;z-index:0;opacity:0.05;
+    }
+    @keyframes rotate{100%{transform:rotate(360deg);}}
+    .stat-card i{font-size:42px;color:#06d6a0;margin-bottom:12px;position:relative;z-index:1;}
+    .stat-card h2{font-size:32px;margin-bottom:6px;position:relative;z-index:1;}
+    .stat-card:hover{
+      transform:translateY(-5px) scale(1.02);
+      box-shadow:0 12px 30px rgba(0,200,150,0.4);
+    }
+
+    /* Quick Actions - Smoother animations */
+    .quick-actions{display:flex;justify-content:center;gap:25px;margin:50px 0;flex-wrap:wrap;}
+    .qa-card{
+      background:linear-gradient(145deg,rgba(255,255,255,0.8),rgba(200,255,230,0.9));
+      padding:24px 30px;border-radius:20px;text-align:center;color:#023047;
+      box-shadow:0 8px 20px rgba(0,200,150,0.35);
+      cursor:pointer;transition:transform 0.3s ease,box-shadow 0.3s ease;
+      width:190px;position:relative;overflow:hidden;
+      border:1px solid rgba(0,200,150,0.25);
+      animation:subtleFloat 6s infinite ease-in-out;
+    }
+    .qa-card::before{
+      content:"";position:absolute;top:50%;left:50%;width:0;height:0;
+      background:rgba(200,255,230,0.5);border-radius:50%;
+      transform:translate(-50%,-50%);transition:0.4s ease;z-index:0;
+    }
+    .qa-card:hover::before{width:200%;height:200%;}
+    .qa-card i{font-size:30px;margin-bottom:10px;color:#06d6a0;position:relative;z-index:1;}
+    .qa-card p{position:relative;z-index:1;}
+    .qa-card:hover{
+      transform:translateY(-8px) scale(1.05);
+      box-shadow:0 16px 35px rgba(0,200,150,0.5);
+    }
+    @keyframes subtleFloat{
+      0%,100%{transform:translateY(0);}
+      50%{transform:translateY(-3px);}
+    }
+
+    footer{text-align:center;padding:15px;margin-top:40px;font-size:14px;color:#035e4b;border-top:1px solid rgba(0,0,0,0.1);}
+
+    /* Stable animations */
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes slideIn{from{transform:translateX(-100%);}to{transform:translateX(0);}}
+
+    /* Performance optimizations */
+    *{
+      -webkit-transform-style:preserve-3d;
+      -webkit-backface-visibility:hidden;
+      -webkit-perspective:1000;
+    }
+
+    /* Enhanced HealthAssist Chatbot Styles */
+    #chatbot-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 2000;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Chat Toggle Button - Enhanced */
+    #chatbot-toggle {
+      background: linear-gradient(135deg, #06d6a0, #00b4d8);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(6, 214, 160, 0.4);
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    #chatbot-toggle:hover { 
+      transform: scale(1.1); 
+      box-shadow: 0 12px 35px rgba(6, 214, 160, 0.6);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 8px 25px rgba(6, 214, 160, 0.4); }
+      50% { box-shadow: 0 12px 35px rgba(6, 214, 160, 0.7); }
+      100% { box-shadow: 0 8px 25px rgba(6, 214, 160, 0.4); }
+    }
+
+    /* Chat Window - Enhanced HealthAssist Design */
+    #chatbot-box {
+      display: none;
+      flex-direction: column;
+      width: 380px;
+      max-width: 90vw;
+      height: 500px;
+      background: #f0fcff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+      position: absolute;
+      bottom: 80px;
+      right: 0;
+      animation: fadeInUp 0.4s ease;
+      border: 1px solid rgba(6, 214, 160, 0.2);
+    }
+
+    @keyframes fadeInUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Chat Header - HealthAssist Style */
+    .chat-header {
+      background: linear-gradient(135deg, #06d6a0, #00b4d8);
+      color: white;
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .chat-header .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.2);
+      font-size: 18px;
+      margin-right: 10px;
+    }
+
+    .chat-header button {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .chat-header button:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Chat Body - HealthAssist Style */
+    .chat-body {
+      flex: 1;
+      padding: 18px;
+      overflow-y: auto;
+      background: #f0fcff;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      margin: 12px 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      max-width: 85%;
+      line-height: 1.4;
+      border: 1px solid rgba(0,0,0,0.08);
+      animation: messageSlideIn 0.3s ease;
+    }
+
+    @keyframes messageSlideIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .message.bot { 
+      background: rgba(6, 214, 160, 0.15);
+      align-self: flex-start;
+      border-color: rgba(6, 214, 160, 0.3);
+      color: #023047;
+    }
+    .message.user { 
+      background: rgba(0,0,0,0.08);
+      align-self: flex-end;
+      margin-left: auto;
+      color: #023047;
+    }
+    .message.alert {
+      border-color: rgba(239,68,68,0.6);
+      background: rgba(239,68,68,0.12);
+      font-weight: bold;
+      color: #dc2626;
+    }
+
+    .typing-indicator {
+      font-size: 13px;
+      color: #3d6d6d;
+      font-style: italic;
+      padding: 8px 14px;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Chat Footer - Enhanced */
+    .chat-footer {
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      background: linear-gradient(0deg, rgba(0,0,0,0.03), transparent);
+    }
+
+    .chat-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 8px;
+    }
+
+    #chat-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: #e8fdf4;
+      color: #023047;
+      outline: none;
+      transition: 0.2s;
+      font-size: 14px;
+    }
+    #chat-input:focus {
+      border-color: #06d6a0;
+      box-shadow: 0 0 0 3px rgba(6, 214, 160, 0.2);
+    }
+
+    .chat-btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: #dff7ff;
+      color: #023047;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 14px;
+    }
+    .chat-btn:hover { opacity: 0.85; }
+
+    .chat-btn.primary {
+      background: linear-gradient(135deg, #3b82f6, #06d6a0 60%);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .chat-btn.warn {
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8 65%);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .chat-disclaimer {
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #3d6d6d;
+      text-align: center;
+      background: rgba(0,0,0,0.02);
+      border-radius: 8px;
+    }
+
+    @media (max-width:768px){
+      main{margin-left:70px !important;padding:16px;}
+      header h1{font-size:24px;}
+      .hero img{width:90px;}
+      .qa-card{width:100%;max-width:260px;}
+      #chatbot-container{right:10px;bottom:10px;}
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyC-EE-5SDQuJU8HUCrLq4Dn9DwxFA_JQrM",
+      authDomain: "healthcare-routing-1a4b3.firebaseapp.com",
+      databaseURL: "https://healthcare-routing-1a4b3-default-rtdb.firebaseio.com",
+      projectId: "healthcare-routing-1a4b3",
+      storageBucket: "healthcare-routing-1a4b3.appspot.com",
+      messagingSenderId: "449191959751",
+      appId: "1:449191959751:web:6f84055b2d86647735f2e2"
+    });
+  </script>
+</head>
+<body>
+
+  <!-- Background Particles -->
+  <div class="particles">
+    <span style="width:20px;height:20px;left:10%;animation-delay:0s;"></span>
+    <span style="width:15px;height:15px;left:30%;animation-delay:5s;"></span>
+    <span style="width:18px;height:18px;left:55%;animation-delay:10s;"></span>
+    <span style="width:16px;height:16px;left:75%;animation-delay:15s;"></span>
+    <span style="width:22px;height:22px;left:90%;animation-delay:20s;"></span>
+  </div>
+  
+  <!-- Background Emojis -->
+  <div class="particles">
+    <div class="emoji" style="left:8%;animation-delay:0s;">🏥</div>
+    <div class="emoji" style="left:20%;animation-delay:2s;">👩‍⚕</div>
+    <div class="emoji" style="left:35%;animation-delay:4s;">💊</div>
+    <div class="emoji" style="left:50%;animation-delay:6s;">🚑</div>
+    <div class="emoji" style="left:65%;animation-delay:8s;">🩺</div>
+    <div class="emoji" style="left:80%;animation-delay:10s;">❤</div>
+    <div class="emoji" style="left:25%;animation-delay:12s;">🧑‍⚕</div>
+    <div class="emoji" style="left:40%;animation-delay:14s;">💉</div>
+    <div class="emoji" style="left:70%;animation-delay:16s;">🧬</div>
+    <div class="emoji" style="left:90%;animation-delay:18s;">👨‍⚕</div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h2>MEDI REACH</h2>
+    <div class="toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+    <a href="symptom-checker.html" class="active"><i class="fas fa-home"></i><span>Symptom Checker</span></a>
+    <a href="myprofile.html"><i class="fas fa-user-md"></i><span>My Profile</span></a>
+    <a href="purchase.html"><i class="fas fa-hospital"></i><span>Medikart</span></a>
+    <a href="appointment.html"><i class="fas fa-calendar-check"></i><span>Appointments</span></a>
+    <a href="symptom-history.html"><i class="fas fa-ambulance"></i><span>Symptom History</span></a>
+    <a href="hospital-suggestion.html"><i class="fas fa-file-medical"></i><span>Hospital Suggestions</span></a>
+     <a href="login.html" onclick="logout(event)"><i class="fas fa-right-from-bracket"></i><span>Logout</span></a>
+  </div>
+  
+  <!-- Main -->
+  <main>
+    <header>
+      <h1>Connecting Healthcare & Hope</h1>
+      <p>Empowering Rural Communities with Smarter Access 🌍</p>
+    </header>
+
+    <h2>Welcome, <span id="userName">there</span> 👋</h2>
+
+    <!-- Hero -->
+    <section class="hero">
+      <img src="https://cdn-icons-png.flaticon.com/512/2966/2966487.png" alt="Healthcare"/>
+      <div class="hero-text">
+        <h2>Your Health, Our Priority ❤️</h2>
+        <p>Access doctors, book appointments, and find hospitals—all in one place.</p>
+      </div>
+    </section>
+
+    <!-- Tips -->
+    <div class="tips"><p id="healthTip" class="fade">💡 Stay hydrated: Drink at least 8 glasses of water daily.</p></div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card"><i class="fas fa-stethoscope"></i><h2 class="count" id="statChecks">–</h2><p>My Symptom Checks</p></div>
+      <div class="stat-card"><i class="fas fa-calendar-check"></i><h2 class="count" id="statAppts">–</h2><p>My Appointments</p></div>
+      <div class="stat-card"><i class="fas fa-bell"></i><h2 class="count" id="statReminders">–</h2><p>Active Reminders</p></div>
+      <div class="stat-card"><i class="fas fa-cart-shopping"></i><h2 class="count" id="statCart">–</h2><p>Items in Cart</p></div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+    <div class="qa-card" onclick="window.location.href='remainder.html'">
+      <i class="fas fa-notes-medical"></i>
+      <p>Reminder</p>
+    </div>
+
+    <div class="qa-card" onclick="window.location.href='bloodbank.html'">
+      <i class="fas fa-clinic-medical"></i>
+      <p>Blood Bank</p>
+    </div>
+  </div>
+
+  <!-- Enhanced HealthAssist Chatbot -->
+  <div id="chatbot-container">
+    <button id="chatbot-toggle"><i class="fas fa-robot"></i></button>
+    <div id="chatbot-box">
+      <div class="chat-header">
+        <div style="display: flex; align-items: center;">
+          <div class="logo">🩺</div>
+          <div>
+            <div style="font-size: 16px; font-weight: 600;">HealthAssist</div>
+            <div style="font-size: 11px; opacity: 0.8;">General health chatbot • Not medical advice</div>
+          </div>
+        </div>
+        <button id="close-chat"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="chat-body" id="chat-body">
+        <div class="message bot">
+          Hi 👋 I'm here to help with general health guidance.<br>
+          <span style="color:#3d6d6d;font-size:12px">Try: "I have a sore throat", "I feel chest pain", or "stomach ache".</span>
+        </div>
+      </div>
+      <div class="chat-footer">
+        <div class="chat-input-row">
+          <input id="chat-input" type="text" placeholder="Describe your symptoms..." autocomplete="off" />
+          <button id="voiceBtn" class="chat-btn" title="Voice input">🎙</button>
+          <button id="nearbyBtn" class="chat-btn warn" title="Find nearby hospitals">🏥</button>
+          <button id="send-btn" class="chat-btn primary">Send</button>
+        </div>
+        <div class="chat-disclaimer">⚠ Emergency? Call local emergency services (e.g., 108 in India). This runs in your browser only.</div>
+      </div>
+    </div>
+  </div>
+
+    <footer>© 2025 RURAL REACH | Bridging the Healthcare Gap</footer>
+  </main>
+
+  <!-- JS -->
+  <script>
+    /* Sidebar Toggle */
+    function toggleSidebar(){
+      document.getElementById("sidebar").classList.toggle("collapsed");
+    }
+
+    /* Tips Rotation */
+    const tips=[
+      "💡 Stay hydrated: Drink at least 8 glasses of water daily.",
+      "🥦 Eat more fruits & vegetables for a strong immune system.",
+      "🏃 Exercise 30 mins a day to stay active & healthy.",
+      "😴 Sleep 7-8 hours for better recovery and energy.",
+      "🧴 Wash your hands frequently to prevent infections."
+    ];
+    let i=0;
+    setInterval(()=>{
+      const tip=document.getElementById("healthTip");
+      tip.classList.remove("fade");
+      void tip.offsetWidth;
+      tip.innerText=tips[i];
+      tip.classList.add("fade");
+      i=(i+1)%tips.length;
+    },4000);
+
+    /* Session guard + personalised data (the old stats were hard-coded fake numbers) */
+    const uid = localStorage.getItem("uid");
+    if (!uid) { window.location.replace("login.html"); }
+    document.getElementById("userName").textContent = localStorage.getItem("name") || "there";
+    if (window.innerWidth < 768) document.getElementById("sidebar").classList.add("collapsed");
+
+    function setCount(id, n){ document.getElementById(id).textContent = n; }
+    try {
+      const sched = JSON.parse(localStorage.getItem("medicationSchedules") || "{}");
+      setCount("statReminders", ["morning","afternoon","night"].reduce((t,p)=>t+((sched[p]||[]).filter(m=>m.reminder).length),0));
+      setCount("statCart", (JSON.parse(localStorage.getItem("cart") || "[]")).reduce((t,i)=>t+(i.quantity||0),0));
+    } catch(e) { setCount("statReminders", 0); setCount("statCart", 0); }
+    if (uid) {
+      const countFor = (node, id) => firebase.database().ref(node).orderByChild("uid").equalTo(uid).once("value")
+        .then(s => setCount(id, s.numChildren())).catch(() => setCount(id, "n/a"));
+      countFor("symptomHistory", "statChecks");
+      countFor("AppointmentDetails", "statAppts");
+    }
+
+    function logout(e){
+      e.preventDefault();
+      ["uid","name","username","email"].forEach(k=>localStorage.removeItem(k));
+      firebase.auth().signOut().finally(()=>{ window.location.href = "login.html"; });
+    }
+
+    /* Enhanced HealthAssist Chatbot Functionality */
+    const chatbotToggle = document.getElementById("chatbot-toggle");
+    const chatbotBox = document.getElementById("chatbot-box");
+    const closeChat = document.getElementById("close-chat");
+    const sendBtn = document.getElementById("send-btn");
+    const chatInput = document.getElementById("chat-input");
+    const chatBody = document.getElementById("chat-body");
+    const nearbyBtn = document.getElementById("nearbyBtn");
+    const voiceBtn = document.getElementById("voiceBtn");
+
+    // Chat toggle functionality
+    chatbotToggle.addEventListener("click", () => {
+      chatbotBox.style.display = "flex";
+      chatInput.focus();
+    });
+    
+    closeChat.addEventListener("click", () => {
+      chatbotBox.style.display = "none";
+    });
+
+    // Message handling functions
+    function addMessage(text, sender = 'bot', extraClass = '') {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender} ${extraClass}`.trim();
+      if (sender === 'user') messageDiv.textContent = text; else messageDiv.innerHTML = text;
+      chatBody.appendChild(messageDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing-indicator';
+      typingDiv.textContent = "HealthAssist is typing...";
+      typingDiv.id = "typing-indicator";
+      chatBody.appendChild(typingDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const typing = document.getElementById("typing-indicator");
+      if (typing) typing.remove();
+    }
+
+    // Emergency detection patterns
+    const EMERGENCY_PATTERNS = [
+      /chest (pain|tight|pressure|hurt)/i,
+      /(severe|worst|terrible) headache/i,
+      /short(ness)? of breath/i,
+      /(difficulty|trouble|hard) (breathing|respir(ing|ation))/i,
+      /loss of consciousness|faint(ing|ed)?/i,
+      /seizure|convulsion/i,
+      /suicid(e|al)|self\-harm/i,
+      /heart attack/i,
+      /stroke/i,
+      /(severe|extreme) pain/i
+    ];
+
+    function detectEmergency(text) {
+      return EMERGENCY_PATTERNS.some(pattern => pattern.test(text));
+    }
+
+    // Health information database
+    const healthDatabase = {
+      // Stomach issues
+      'stomach ache': {
+        title: 'Stomach Ache',
+        info: 'Stomach pain can be caused by various factors including indigestion, gas, stress, or eating too quickly.',
+        causes: ['Indigestion', 'Gas buildup', 'Stress', 'Overeating', 'Food poisoning'],
+        remedies: ['Drink warm water', 'Try ginger tea', 'Rest and avoid solid foods', 'Apply heat pad to stomach'],
+        warning: 'Seek immediate care if pain is severe, persistent, or accompanied by fever, vomiting, or blood.'
+      },
+      'stomachache': { redirect: 'stomach ache' },
+      'stomach pain': { redirect: 'stomach ache' },
+      'abdominal pain': { redirect: 'stomach ache' },
+      
+      // Headache
+      'headache': {
+        title: 'Headache',
+        info: 'Headaches are common and can range from mild discomfort to severe pain affecting daily activities.',
+        causes: ['Tension', 'Dehydration', 'Lack of sleep', 'Eye strain', 'Stress', 'Hunger'],
+        remedies: ['Rest in a dark, quiet room', 'Stay hydrated', 'Apply cold or warm compress', 'Get adequate sleep'],
+        warning: 'Seek immediate care for sudden, severe headaches, or those with fever, stiff neck, or vision changes.'
+      },
+      'head ache': { redirect: 'headache' },
+      'migraine': { redirect: 'headache' },
+      
+      // Sore throat
+      'sore throat': {
+        title: 'Sore Throat',
+        info: 'A sore throat is often the first sign of a cold, but can also be caused by other infections or irritants.',
+        causes: ['Viral infections', 'Bacterial infections', 'Allergies', 'Dry air', 'Smoking'],
+        remedies: ['Gargle with warm salt water', 'Drink warm liquids', 'Use throat lozenges', 'Stay hydrated'],
+        warning: 'See a doctor if sore throat persists more than a week, has white patches, or difficulty swallowing.'
+      },
+      'throat pain': { redirect: 'sore throat' },
+      
+      // Fever
+      'fever': {
+        title: 'Fever',
+        info: 'Fever is a temporary increase in body temperature, often due to an illness. Normal body temperature is around 98.6°F (37°C).',
+        causes: ['Viral infections', 'Bacterial infections', 'Heat exhaustion', 'Certain medications'],
+        remedies: ['Rest and drink plenty of fluids', 'Take fever reducers as directed', 'Use cool compresses', 'Wear light clothing'],
+        warning: 'Seek immediate care for fever above 103°F (39.4°C), difficulty breathing, or severe symptoms.'
+      },
+      'high temperature': { redirect: 'fever' },
+      
+      // Cough
+      'cough': {
+        title: 'Cough',
+        info: 'Coughing is a natural reflex that helps clear airways of mucus and irritants.',
+        causes: ['Cold or flu', 'Allergies', 'Asthma', 'Acid reflux', 'Smoking'],
+        remedies: ['Stay hydrated', 'Use honey (not for infants)', 'Inhale steam', 'Avoid irritants'],
+        warning: 'Consult a doctor for persistent cough lasting more than 3 weeks, blood in cough, or breathing difficulties.'
+      },
+      'coughing': { redirect: 'cough' },
+      
+      // Nausea
+      'nausea': {
+        title: 'Nausea',
+        info: 'Nausea is the feeling of sickness with an urge to vomit. It can have many causes.',
+        causes: ['Motion sickness', 'Morning sickness', 'Food poisoning', 'Stress', 'Medications'],
+        remedies: ['Sip clear fluids slowly', 'Eat small, bland meals', 'Get fresh air', 'Try ginger'],
+        warning: 'Seek care for severe nausea with dehydration, persistent vomiting, or severe abdominal pain.'
+      },
+      'feeling sick': { redirect: 'nausea' },
+      'vomiting': { redirect: 'nausea' }
+    };
+
+    // Function to get health information
+    function getHealthInfo(query) {
+      const cleanQuery = query.toLowerCase().trim();
+      
+      // Direct match
+      if (healthDatabase[cleanQuery]) {
+        const info = healthDatabase[cleanQuery];
+        if (info.redirect) {
+          return formatHealthResponse(healthDatabase[info.redirect]);
+        }
+        return formatHealthResponse(info);
+      }
+      
+      // Partial match
+      for (const [key, value] of Object.entries(healthDatabase)) {
+        if (cleanQuery.includes(key) || (cleanQuery.length >= 4 && key.includes(cleanQuery))) {
+          if (value.redirect) {
+            return formatHealthResponse(healthDatabase[value.redirect]);
+          }
+          return formatHealthResponse(value);
+        }
+      }
+      
+      // No match found
+      return `I understand you're asking about "${query.replace(/[<>&]/g, "")}". While I don't have specific information about this symptom, I recommend consulting with a healthcare professional for proper evaluation and guidance.<br><br>🏥 <strong>Remember:</strong> For any concerning symptoms, it's always best to speak with a doctor or healthcare provider.`;
+    }
+
+    // Format health response
+    function formatHealthResponse(info) {
+      let response = `<strong>${info.title}</strong><br><br>`;
+      response += `${info.info}<br><br>`;
+      
+      if (info.causes) {
+        response += `<strong>Common Causes:</strong><br>`;
+        response += info.causes.map(cause => `• ${cause}`).join('<br>') + '<br><br>';
+      }
+      
+      if (info.remedies) {
+        response += `<strong>Home Remedies:</strong><br>`;
+        response += info.remedies.map(remedy => `• ${remedy}`).join('<br>') + '<br><br>';
+      }
+      
+      if (info.warning) {
+        response += `<strong>⚠️ When to See a Doctor:</strong><br>${info.warning}<br><br>`;
+      }
+      
+      response += `<em>💡 This is general information only. Please consult a healthcare professional for personalized medical advice.</em>`;
+      
+      return response;
+    }
+
+    // Send message function
+    async function sendMessage() {
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addMessage(message, 'user');
+      chatInput.value = '';
+      
+      // Add typing indicator
+      addTypingIndicator();
+
+      // Simulate processing delay
+      setTimeout(async () => {
+        removeTypingIndicator();
+        
+        // Check for emergency
+        if (detectEmergency(message)) {
+          addMessage("⚠ This may be urgent. Please seek immediate medical attention or call local emergency services (108 in India).", 'bot', 'alert');
+        } else {
+          // Get health information from database
+          const response = getHealthInfo(message);
+          addMessage(response, 'bot');
+        }
+      }, 1000);
+    }
+
+    // Event listeners for sending messages
+    sendBtn.addEventListener("click", sendMessage);
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    // Nearby hospitals functionality
+    function openNearbyHospitals() {
+      if (!navigator.geolocation) {
+        window.open('https://www.google.com/maps/search/hospital+near+me', '_blank');
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const url = `https://www.google.com/maps/search/hospital/@${latitude},${longitude},14z`;
+          window.open(url, '_blank');
+        },
+        () => {
+          window.open('https://www.google.com/maps/search/hospital+near+me', '_blank');
+        }
+      );
+    }
+
+    nearbyBtn.addEventListener("click", openNearbyHospitals);
+
+    // Voice recognition functionality
+    function startVoiceRecognition() {
+      if (!('webkitSpeechRecognition' in window)) {
+        addMessage("Speech recognition is not supported in this browser. Please try typing your message.", 'bot');
+        return;
+      }
+
+      const recognition = new webkitSpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        voiceBtn.innerHTML = '🔴';
+        voiceBtn.title = 'Recording... Click to stop';
+        chatInput.placeholder = 'Listening...';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        chatInput.value = transcript;
+        sendMessage();
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        addMessage("Sorry, I couldn't understand. Please try again or type your message.", 'bot');
+      };
+
+      recognition.onend = () => {
+        voiceBtn.innerHTML = '🎙';
+        voiceBtn.title = 'Voice input';
+        chatInput.placeholder = 'Describe your symptoms...';
+      };
+
+      recognition.start();
+    }
+
+    voiceBtn.addEventListener("click", startVoiceRecognition);
+
+    // Close chatbot when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!chatbotBox.contains(e.target) && !chatbotToggle.contains(e.target)) {
+        if (chatbotBox.style.display === "flex") {
+          chatbotBox.style.display = "none";
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,976 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Healthcare Symptom Checker</title>
+
+<!-- Google Fonts & Font Awesome -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Roboto',sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:20px;
+  background:linear-gradient(135deg,#c9ffbf,#a8edea,#fed6e3,#f9f7f3);
+  background-size:400% 400%;
+  animation:bgAnimate 20s ease infinite;
+  position:relative;
+  overflow-x:hidden;
+}
+
+@keyframes bgAnimate{
+  0%{background-position:0 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0 50%;}
+}
+
+body::before{
+  content:"\f0f8 \f0fa \f21e \f691";
+  font-family:"Font Awesome 6 Free";
+  font-weight:900;
+  font-size:200px;
+  color:rgba(255,255,255,0.05);
+  position:fixed;
+  pointer-events:none;
+  top:-50px;
+  left:-50px;
+  animation:floatIcons 25s linear infinite;
+}
+
+@keyframes floatIcons{
+  0%{transform:translate(0,0) rotate(0deg);}
+  50%{transform:translate(100vw,100vh) rotate(180deg);}
+  100%{transform:translate(0,0) rotate(360deg);}
+}
+
+.container{
+  background:white;
+  border-radius:25px;
+  box-shadow:0 12px 35px rgba(0,0,0,0.25);
+  padding:30px;
+  width:100%;
+  max-width:800px;
+  animation:fadeIn 1s ease;
+  position:relative;
+  z-index:1;
+  overflow:hidden;
+}
+
+.container::before{
+  content:"";
+  position:absolute;
+  top:-100px;
+  right:-100px;
+  width:250px;
+  height:250px;
+  background:radial-gradient(circle,#2e8b57 0%,transparent 70%);
+  opacity:0.1;
+  border-radius:50%;
+  animation:pulse 6s infinite;
+  z-index:-1;
+}
+
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:0.1;}
+  50%{transform:scale(1.2);opacity:0.2;}
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+h2{
+  text-align:center;
+  color:#2e8b57;
+  margin-bottom:20px;
+  font-size:2.3rem;
+  text-shadow:1px 2px 4px rgba(0,0,0,0.2);
+}
+
+label{
+  font-weight:500;
+  margin-top:15px;
+  display:block;
+  color:#333;
+}
+
+.input-icon{
+  position:relative;
+  margin-bottom:15px;
+}
+
+.input-icon i{
+  position:absolute;
+  top:12px;
+  left:12px;
+  color:#2e8b57;
+}
+
+.input-icon input{
+  width:100%;
+  padding:12px 12px 12px 35px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+  background:#fdfdfd;
+}
+
+input:focus,select:focus{
+  border-color:#2e8b57;
+  box-shadow:0 0 12px rgba(46,139,87,0.3);
+  outline:none;
+  transition:0.3s;
+}
+
+.symptom-cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:20px;
+  margin-top:10px;
+}
+
+.symptom-card{
+  background:linear-gradient(135deg,#f0f0f0,#dfe6e9);
+  border-radius:15px;
+  padding:20px 15px;
+  text-align:center;
+  cursor:pointer;
+  box-shadow:0 6px 15px rgba(0,0,0,0.1);
+  transition:0.5s;
+  position:relative;
+}
+
+.symptom-card:hover{
+  transform:translateY(-6px) scale(1.08) rotateY(8deg);
+  background:linear-gradient(135deg,#43cea2,#185a9d);
+  color:white;
+}
+
+.symptom-card i{
+  font-size:32px;
+  margin-bottom:10px;
+  display:block;
+}
+
+#customSymptomContainer{
+  display:none;
+  margin-top:15px;
+}
+
+#customSymptomContainer input{
+  width:100%;
+  padding:12px;
+  border:1px solid #3498db;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.suggestion-box{
+  margin-top:25px;
+  padding:20px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#d4fc79,#96e6a1);
+  border-left:6px solid #2e8b57;
+  font-weight:bold;
+  animation:fadeIn 0.5s;
+  box-shadow:0 8px 18px rgba(0,0,0,0.15);
+}
+
+.suggestion-box span{
+  display:inline-block;
+  margin-left:10px;
+}
+
+.hospital-box{
+  margin-top:15px;
+  padding:15px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#c2e9fb,#a1c4fd);
+  border-left:6px solid #3498db;
+  font-weight:bold;
+  display:none;
+  box-shadow:0 6px 15px rgba(0,0,0,0.15);
+}
+
+.quick-actions{
+  display:flex;
+  gap:12px;
+  margin-top:20px;
+}
+
+.quick-actions button{
+  flex:1;
+  background:linear-gradient(135deg,#3498db,#1abc9c);
+  color:white;
+  border:none;
+  padding:14px;
+  font-weight:bold;
+  border-radius:12px;
+  cursor:pointer;
+  transition:0.3s;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+}
+
+.quick-actions button:hover{
+  transform:translateY(-3px) scale(1.05);
+  background:linear-gradient(135deg,#1abc9c,#3498db);
+}
+
+button#backBtn{
+  margin-top:30px;
+  width:100%;
+  padding:15px;
+  font-size:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:linear-gradient(135deg,#43cea2,#185a9d);
+  color:white;
+  transition:0.3s;
+  box-shadow:0 6px 15px rgba(0,0,0,0.25);
+}
+
+button#backBtn:hover{
+  background:linear-gradient(135deg,#185a9d,#43cea2);
+  transform:translateY(-2px);
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 12px;
+  border-radius:12px;
+  color:white;
+  font-weight:600;
+  margin-left:10px;
+  font-size:0.9rem;
+}
+
+.mild{background:#2e8b57;}
+.moderate{background:#f39c12;}
+.severe{background:#e74c3c;}
+
+@media(max-width:480px){
+  .container{padding:20px;}
+  h2{font-size:1.8rem;}
+  .symptom-card i{font-size:26px;}
+  .quick-actions{flex-direction:column;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>
+  <i class="fa-solid fa-hospital"></i>
+  Symptom Checker
+</h2>
+
+<label for="username">User Name:</label>
+
+<div class="input-icon">
+  <i class="fa-solid fa-user"></i>
+  <input
+    type="text"
+    id="username"
+    placeholder="Enter your name"
+    autocomplete="name"
+  />
+</div>
+
+<label for="severity">Severity:</label>
+
+<input
+  type="range"
+  id="severity"
+  min="1"
+  max="3"
+  step="1"
+  value="1"
+  list="severityList"
+/>
+
+<datalist id="severityList">
+  <option value="1" label="Mild"></option>
+  <option value="2" label="Moderate"></option>
+  <option value="3" label="Severe"></option>
+</datalist>
+
+<label>Select Symptom:</label>
+
+<div class="symptom-cards">
+
+  <div class="symptom-card" onclick="selectSymptom('Fever')">
+    <i class="fa-solid fa-temperature-high"></i>
+    Fever
+  </div>
+
+  <div class="symptom-card" onclick="selectSymptom('Cough')">
+    <i class="fa-solid fa-lungs"></i>
+    Cough
+  </div>
+
+  <div class="symptom-card" onclick="selectSymptom('Headache')">
+    <i class="fa-solid fa-head-side-virus"></i>
+    Headache
+  </div>
+
+  <div class="symptom-card" onclick="selectSymptom('Cold')">
+    <i class="fa-solid fa-snowflake"></i>
+    Cold
+  </div>
+
+  <div class="symptom-card" onclick="selectSymptom('Stomach Pain')">
+    <i class="fa-solid fa-utensils"></i>
+    Stomach Pain
+  </div>
+
+  <div class="symptom-card" onclick="selectSymptom('Back Pain')">
+    <i class="fa-solid fa-person-praying"></i>
+    Back Pain
+  </div>
+
+  <div class="symptom-card" onclick="selectSymptom('Other')">
+    <i class="fa-solid fa-circle-question"></i>
+    Other
+  </div>
+
+</div>
+
+<div id="customSymptomContainer">
+
+  <label for="customSymptom">Enter Your Symptom:</label>
+
+  <input
+    type="text"
+    id="customSymptom"
+    placeholder="Describe your symptom..."
+  />
+
+  <div class="quick-actions">
+    <button type="button" onclick="submitCustomSymptom()">
+      <i class="fa-solid fa-paper-plane"></i>
+      Get Advice
+    </button>
+  </div>
+
+</div>
+
+<div id="suggestionBox" class="suggestion-box" style="display:none;">
+
+  <p id="suggestionText"></p>
+  <p id="prescriptionText"></p>
+  <p id="moreInfo"></p>
+
+</div>
+
+<div id="hospitalBox" class="hospital-box">
+
+  <p>
+    <i class="fa-solid fa-user-doctor"></i>
+    Suggested specialty:
+    <span id="hospitalName"></span>
+  </p>
+
+  <p style="font-weight:normal;font-size:.9rem;margin-top:6px">
+    Real hospitals near you are shown on the next page.
+  </p>
+
+</div>
+
+<div class="quick-actions">
+
+  <button type="button" onclick="callAmbulance()">
+    <i class="fa-solid fa-phone"></i>
+    Call Ambulance (108)
+  </button>
+
+  <button
+    type="button"
+    onclick="window.location.href='hospital-suggestion.html'"
+  >
+    <i class="fa-solid fa-map-location-dot"></i>
+    Nearby Hospital
+  </button>
+
+</div>
+
+<button
+  type="button"
+  onclick="window.location.href='symptom-history.html'"
+  style="margin-top:20px;width:100%;padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;background:#e0f2fe;color:#075985"
+>
+  <i class="fa-solid fa-clock-rotate-left"></i>
+  View My Symptom History
+</button>
+
+<button
+  id="backBtn"
+  type="button"
+  onclick="window.location.href='dashboard.html'"
+>
+  <i class="fa-solid fa-arrow-left"></i>
+  Back to Dashboard
+</button>
+
+</div>
+
+<!-- Firebase SDK Version 8.10.0 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+
+// ==========================================
+// FIREBASE CONFIGURATION
+// ==========================================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCtjfuunPvAKEc-9iBl2VI1D89X4NrhXgE",
+  authDomain: "medireach-700fc.firebaseapp.com",
+  databaseURL: "https://medireach-700fc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "medireach-700fc",
+  storageBucket: "medireach-700fc.firebasestorage.app",
+  messagingSenderId: "946051383153",
+  appId: "1:946051383153:web:cf8c290bd8eb5e92e980d0",
+  measurementId: "G-S9CKBQHT84"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const database = firebase.database();
+
+let currentUser = null;
+let redirectTimer = null;
+
+
+// ==========================================
+// AUTHENTICATION CHECK
+// ==========================================
+
+auth.onAuthStateChanged(function(user) {
+
+  if (!user) {
+
+    currentUser = null;
+
+    alert("Please login to access the Symptom Checker.");
+
+    window.location.href = "login.html";
+
+    return;
+  }
+
+  currentUser = user;
+
+  const usernameInput = document.getElementById("username");
+
+  // Load user profile from Firebase
+  database.ref("users/" + user.uid).once("value")
+
+    .then(function(snapshot) {
+
+      const profile = snapshot.val() || {};
+
+      const savedName = profile.name || user.displayName || "";
+
+      usernameInput.value = savedName;
+
+      localStorage.setItem("uid", user.uid);
+      localStorage.setItem("username", savedName);
+      localStorage.setItem("name", savedName);
+      localStorage.setItem("email", user.email || "");
+
+    })
+
+    .catch(function(error) {
+
+      console.error("Could not load user profile:", error);
+
+      usernameInput.value = user.displayName || "";
+
+    });
+
+});
+
+
+// ==========================================
+// SAVE USER NAME
+// ==========================================
+
+document.getElementById("username").addEventListener("blur", saveName);
+
+document.getElementById("username").addEventListener("keydown", function(event) {
+
+  if (event.key === "Enter") {
+
+    event.preventDefault();
+
+    saveName();
+
+    this.blur();
+
+  }
+
+});
+
+function saveName() {
+
+  if (!currentUser) return;
+
+  const name = document.getElementById("username").value.trim();
+
+  if (!name) return;
+
+  localStorage.setItem("username", name);
+  localStorage.setItem("name", name);
+
+  database.ref("users/" + currentUser.uid).update({
+    name: name
+  }).catch(function(error) {
+
+    console.error("Name update failed:", error);
+
+  });
+
+}
+
+
+// ==========================================
+// SYMPTOM SUGGESTIONS
+// ==========================================
+
+const symptomMap = {
+
+  "Fever": [
+    [
+      "Stay hydrated 💧",
+      "Paracetamol 500mg 💊",
+      "Take plenty of fluids and rest for faster recovery."
+    ],
+    [
+      "Drink warm water frequently",
+      "Acetaminophen if needed",
+      "Monitor temperature every 4 hours"
+    ]
+  ],
+
+  "Cough": [
+    [
+      "Avoid cold drinks ❄️",
+      "Cough syrup 🩹",
+      "Use warm water gargles and avoid dusty areas."
+    ],
+    [
+      "Honey and lemon tea",
+      "Lozenges for throat",
+      "Avoid smoking and cold air"
+    ]
+  ],
+
+  "Headache": [
+    [
+      "Rest in quiet room 🛏️",
+      "Ibuprofen 💊",
+      "Try to relax eyes and avoid bright lights."
+    ],
+    [
+      "Apply cold compress",
+      "Hydrate regularly",
+      "Take short naps"
+    ]
+  ],
+
+  "Cold": [
+    [
+      "Steam inhalation 🌫️",
+      "Antihistamines 💊",
+      "Stay warm and avoid cold drinks."
+    ],
+    [
+      "Warm fluids",
+      "Saline nasal spray",
+      "Rest and avoid drafts"
+    ]
+  ],
+
+  "Stomach Pain": [
+    [
+      "Eat bland food 🥣",
+      "Antacids 💊",
+      "Avoid spicy and oily food."
+    ],
+    [
+      "Ginger tea",
+      "Probiotics",
+      "Eat small, frequent meals"
+    ]
+  ],
+
+  "Back Pain": [
+    [
+      "Avoid heavy lifting 🏋️",
+      "Pain relief gel 💊",
+      "Stretch gently and maintain posture."
+    ],
+    [
+      "Heat pack on sore area",
+      "Posture correction",
+      "Short walks for relief"
+    ]
+  ],
+
+  "Other": [
+    [
+      "Consult a doctor 🩺",
+      "To be advised",
+      "Provide detailed info to your doctor."
+    ]
+  ]
+
+};
+
+
+// ==========================================
+// SPECIALTY SUGGESTIONS
+// ==========================================
+
+const specialtyMap = {
+
+  "Fever": "General Medicine",
+
+  "Cough": "General Medicine / Pulmonology",
+
+  "Headache": "Neurology",
+
+  "Cold": "General Medicine / ENT",
+
+  "Stomach Pain": "Gastroenterology",
+
+  "Back Pain": "Orthopedics",
+
+  "Other": "General Medicine"
+
+};
+
+
+// ==========================================
+// SELECT SYMPTOM
+// ==========================================
+
+function selectSymptom(symptom) {
+
+  const customContainer =
+    document.getElementById("customSymptomContainer");
+
+  if (symptom === "Other") {
+
+    customContainer.style.display = "block";
+
+    document.getElementById("customSymptom").focus();
+
+    return;
+  }
+
+  customContainer.style.display = "none";
+
+  processSymptom(symptom, symptom);
+
+}
+
+
+// ==========================================
+// CUSTOM SYMPTOM
+// ==========================================
+
+function submitCustomSymptom() {
+
+  const text = document
+    .getElementById("customSymptom")
+    .value
+    .trim();
+
+  if (!text) {
+
+    alert("Please describe your symptom first.");
+
+    return;
+  }
+
+  processSymptom("Other", text);
+
+}
+
+
+// ==========================================
+// PROCESS SYMPTOM
+// ==========================================
+
+function processSymptom(key, finalSymptom) {
+
+  if (!currentUser) {
+
+    alert("Please login first.");
+
+    window.location.href = "login.html";
+
+    return;
+  }
+
+  const username = document
+    .getElementById("username")
+    .value
+    .trim();
+
+  if (!username) {
+
+    alert("Please enter your name first.");
+
+    document.getElementById("username").focus();
+
+    return;
+  }
+
+  const severity = parseInt(
+    document.getElementById("severity").value
+  );
+
+  const severityText =
+    severity === 1
+      ? "Mild"
+      : severity === 2
+      ? "Moderate"
+      : "Severe";
+
+  const options = symptomMap[key];
+
+  const selectedOption =
+    options[Math.floor(Math.random() * options.length)];
+
+  const [suggestion, prescription, moreInfo] = selectedOption;
+
+  showSuggestion(
+    suggestion,
+    prescription,
+    moreInfo,
+    severityText
+  );
+
+  showSpecialty(key);
+
+  saveToFirebase(
+    finalSymptom,
+    suggestion,
+    prescription,
+    severityText
+  );
+
+  clearTimeout(redirectTimer);
+
+  redirectTimer = setTimeout(function() {
+
+    window.location.href =
+      `hospital-suggestion.html?symptom=${encodeURIComponent(finalSymptom)}`;
+
+  }, 6000);
+
+}
+
+
+// ==========================================
+// DISPLAY SUGGESTION
+// ==========================================
+
+function showSuggestion(
+  suggestion,
+  prescription,
+  moreInfo,
+  severityText
+) {
+
+  const box = document.getElementById("suggestionBox");
+
+  box.style.display = "block";
+
+  document.getElementById("suggestionText").innerHTML =
+    `Suggestion: ${esc(suggestion)}
+    <span class="badge ${severityText.toLowerCase()}">
+      ${severityText}
+    </span>`;
+
+  document.getElementById("prescriptionText").innerText =
+    `Prescription: ${prescription}`;
+
+  document.getElementById("moreInfo").innerText =
+    moreInfo +
+    " (General guidance only, not a diagnosis. Consult a doctor before taking any medicine.)";
+
+  box.scrollIntoView({
+    behavior: "smooth"
+  });
+
+  speak(suggestion + " " + prescription);
+
+}
+
+
+// ==========================================
+// DISPLAY SPECIALTY
+// ==========================================
+
+function showSpecialty(key) {
+
+  document.getElementById("hospitalBox").style.display = "block";
+
+  document.getElementById("hospitalName").innerText =
+    specialtyMap[key] || "General Medicine";
+
+}
+
+
+// ==========================================
+// ESCAPE HTML VALUES
+// ==========================================
+
+function esc(value) {
+
+  return String(value).replace(/[&<>"']/g, function(char) {
+
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char];
+
+  });
+
+}
+
+
+// ==========================================
+// SAVE SYMPTOM HISTORY TO FIREBASE
+// ==========================================
+
+function saveToFirebase(
+  symptom,
+  suggestion,
+  prescription,
+  severity
+) {
+
+  if (!currentUser) {
+
+    alert("Login session expired. Please login again.");
+
+    window.location.href = "login.html";
+
+    return;
+  }
+
+  const username = document
+    .getElementById("username")
+    .value
+    .trim();
+
+  const now = new Date();
+
+  const record = {
+
+    uid: currentUser.uid,
+
+    username: username,
+
+    symptom: symptom,
+
+    suggestion: suggestion,
+
+    prescription: prescription,
+
+    severity: severity,
+
+    date: now.toLocaleDateString(),
+
+    time: now.toLocaleTimeString(),
+
+    createdAt: now.toISOString()
+
+  };
+
+  // Each user's symptom history is stored separately
+  database.ref("symptomHistory/" + currentUser.uid)
+    .push(record)
+
+    .then(function() {
+
+      console.log("Symptom history saved successfully.");
+
+    })
+
+    .catch(function(error) {
+
+      console.error("Could not save symptom history:", error);
+
+      alert("Unable to save symptom history. Please check Firebase Database Rules.");
+
+    });
+
+}
+
+
+// ==========================================
+// TEXT TO SPEECH
+// ==========================================
+
+function speak(text) {
+
+  if (!("speechSynthesis" in window)) return;
+
+  const speechText = text.replace(
+    /[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,
+    ""
+  );
+
+  const speechMessage = new SpeechSynthesisUtterance(speechText);
+
+  speechMessage.lang = "en-IN";
+
+  speechSynthesis.cancel();
+
+  speechSynthesis.speak(speechMessage);
+
+}
+
+
+// ==========================================
+// CALL AMBULANCE
+// ==========================================
+
+function callAmbulance() {
+
+  window.location.href = "tel:108";
+
+}
+
+</script>
+
+</body>
+</html>
